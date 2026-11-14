@@ -1,0 +1,52 @@
+# Ogni mese: luoghi della zona GTT da Overture Maps, pubblicati come release
+# "places" (places.jsonl.gz) con l'indice latest.json, che il server di
+# nexTOp legge ogni giorno. Il commit di latest.json tiene attivo il
+# repository: GitHub sospende le attività programmate dopo 60 giorni senza
+# modifiche.
+name: Luoghi Overture
+
+on:
+  schedule:
+    # Il 3 di ogni mese alle 03:17 UTC (Overture pubblica a metà mese circa).
+    - cron: '17 3 3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  places:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: DuckDB
+        run: pip install 'duckdb>=1.1,<3'
+
+      - name: Estrazione
+        run: python overture_places.py --out places.jsonl.gz
+
+      - name: Release e indice
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release=$(gzip -dc places.jsonl.gz | head -1 | python -c "import json,sys; print(json.load(sys.stdin)['release'])")
+          count=$(( $(gzip -dc places.jsonl.gz | wc -l) - 1 ))
+          sha=$(sha256sum places.jsonl.gz | cut -d' ' -f1)
+          url="https://github.com/${{ github.repository }}/releases/download/places/places.jsonl.gz"
+          gh release delete places --yes --cleanup-tag || true
+          gh release create places places.jsonl.gz \
+            --title "Luoghi (Overture $release)" \
+            --notes "Luoghi e attività della zona GTT da Overture Maps $release ($count). Licenze dei dati: LICENSE-DATA.md."
+          printf '{"release":"%s","count":%d,"sha256":"%s","url":"%s","built_at":"%s"}\n' \
+            "$release" "$count" "$sha" "$url" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > latest.json
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add latest.json
+          git commit -m "Luoghi: Overture $release ($count)"
+          git push
