@@ -31,8 +31,8 @@ import urllib.request
 MIN_LAT, MAX_LAT = 44.35, 45.57
 MIN_LON, MAX_LON = 7.10, 8.50
 
-# Affidabilità minima: sotto 0,5 soprattutto doppioni e attività chiuse. Il
-# centro estetico che ha avviato il lavoro (registro aziendale) ha 0,5.
+# Affidabilità minima: sotto 0,5 soprattutto doppioni e attività chiuse; molte
+# attività vere dei registri aziendali hanno proprio 0,5.
 MIN_CONFIDENCE = 0.5
 
 CATALOG = "https://stac.overturemaps.org/catalog.json"
@@ -41,8 +41,8 @@ BUCKET = "s3://overturemaps-us-west-2/release"
 # Comuni scritti in inglese o in maiuscolo nei registri.
 TOWN_FIX = {"turin": "Torino"}
 
-# Parole che restano minuscole nei nomi di via ("Corso Giovanni Agnelli",
-# "Via della Rocca").
+# Parole che restano minuscole nei nomi di via ("Via della Stazione",
+# "Corso del Popolo").
 SMALL = {"di", "del", "della", "delle", "dei", "degli", "dello", "da", "e",
          "al", "alla", "alle", "ai", "agli", "in", "sul", "sulla", "d", "l"}
 
@@ -53,7 +53,7 @@ def latest_release() -> str:
 
 
 def nice(text: str | None) -> str:
-    """Testo in maiuscolo dei registri ("CORSO GIOVANNI AGNELLI 52") in forma
+    """Testo in maiuscolo dei registri ("VIA DELLA STAZIONE 12") in forma
     normale; quello già scritto bene resta com'è."""
     if not text:
         return ""
@@ -72,7 +72,7 @@ def town(text: str | None) -> str:
 
 
 def looks_like_address(name: str) -> bool:
-    """Nomi che sono solo un indirizzo ("Corso Giovanni Agnelli, 100/e")."""
+    """Nomi che sono solo un indirizzo ("Via della Stazione, 12/b")."""
     return re.match(
         r"^(via|corso|c\.so|piazza|p\.za|viale|largo|strada|str\.)\s", name.lower()
     ) is not None

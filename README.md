@@ -23,11 +23,11 @@ extracted monthly from the open Overture Maps Places dataset.*
 ## Formato
 
 `places.jsonl.gz` è un file di testo compresso con gzip, con un oggetto JSON per riga. La
-prima riga indica la versione di Overture, le altre sono i luoghi:
+prima riga indica la versione di Overture, le altre sono i luoghi (esempio inventato):
 
 ```json
 {"release": "2026-10-21.0"}
-{"id": "39c459aa-…", "n": "Bealab - Beauty Studio", "a": "Corso Giovanni Agnelli 52", "t": "Torino", "c": "personal_or_beauty_service", "y": 45.040119, "x": 7.646342, "k": 0.5}
+{"id": "00000000-0000-0000-0000-000000000000", "n": "Panetteria Esempio", "a": "Via Esempio 1", "t": "Torino", "c": "food_and_beverage_store", "y": 45.07, "x": 7.68, "k": 0.9}
 ```
 
 | Campo | Contenuto |
@@ -48,7 +48,7 @@ pubblici di Overture e tiene i luoghi della zona. Rispetto all'originale:
 - scarta i luoghi chiusi o con affidabilità sotto 0,5;
 - scarta i nomi che sono solo un indirizzo;
 - riscrive in forma normale indirizzi e comuni scritti in maiuscolo nei registri
-  ("CORSO GIOVANNI AGNELLI 52" → "Corso Giovanni Agnelli 52", "TURIN" → "Torino").
+  ("VIA DELLA STAZIONE 12" → "Via della Stazione 12", "TURIN" → "Torino").
 
 L'estrazione la esegue ogni mese [GitHub Actions](.github/workflows/places.yml).
 
